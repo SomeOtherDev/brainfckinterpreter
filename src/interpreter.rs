@@ -89,18 +89,18 @@ pub struct Program {
 
 impl Program {
     pub fn from_string(source_code: String) -> Self {
-        let lexer = Lexer::new(source_code.as_str());
-        let mut instructions: Vec<Instruction> = lexer.collect();
-        instructions.retain(|&x| x != Instruction::NOP);
+        let lexer = Lexer::new(source_code.as_str())
+        .filter(|&t| t != Instruction::NOP);
+        let instructions = lexer.collect();
 
         Program { instructions: instructions, instruction_pointer: 0, memory: Memory::new() }
     }
 
     pub fn from_file(file_path: String) -> Result<Self, std::io::Error> {
         let source_code: String = std::fs::read_to_string(&file_path)?;
-        let lexer = Lexer::new(source_code.as_str());
+        let lexer = Lexer::new(source_code.as_str())
+        .filter(|&t| t != Instruction::NOP);
         let mut instructions: Vec<Instruction> = lexer.collect();
-        instructions.retain(|&x| x != Instruction::NOP);
 
         Ok(Program {instructions: instructions, instruction_pointer: 0, memory: Memory::new()})
     }
