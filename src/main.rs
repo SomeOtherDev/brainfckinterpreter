@@ -8,10 +8,9 @@ use interpreter::Program;
 
 fn main() {
 
-    let args: Vec<String> = env::args().collect();
-    if args.len() > 1 {
-        let file_path = &args[1];
-        match fs::metadata(file_path) {
+    let mut cmdline = env::args().skip(1); //Skips executable path
+    if let Some(file_path) = cmdline.next() {
+        match fs::metadata(&file_path) {
             Ok(metadata) => {
                 if metadata.is_file() {
                     let mut program: Program = Program::from_file(file_path.to_string()).unwrap();
