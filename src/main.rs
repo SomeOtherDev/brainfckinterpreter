@@ -13,7 +13,7 @@ fn main() {
         match fs::metadata(&file_path) {
             Ok(metadata) => {
                 if metadata.is_file() {
-                    let mut program: Program = Program::from_file(file_path.to_string()).unwrap();
+                    let mut program: Program = Program::from_file(&file_path).unwrap();
                     program.run();
                     println!();
                 }

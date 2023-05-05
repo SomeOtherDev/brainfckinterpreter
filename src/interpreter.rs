@@ -112,7 +112,7 @@ impl Program {
         Program { instructions: instructions, instruction_pointer: 0, memory: Memory::new() }
     }
 
-    pub fn from_file(file_path: String) -> Result<Self, std::io::Error> {
+    pub fn from_file(file_path: &str) -> Result<Self, std::io::Error> {
         let source_code: String = std::fs::read_to_string(&file_path)?;
         let lexer = Lexer::new(source_code.as_str())
         .filter(|&t| t != Instruction::NOP);
