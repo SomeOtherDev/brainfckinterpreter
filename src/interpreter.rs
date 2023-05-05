@@ -94,11 +94,6 @@ impl Memory {
         self.cells[self.data_pointer] = byte;
     }
 
-    
-    pub fn arbitrary_read(&self, dp: usize) -> u8 {
-        self.cells[dp]
-    }
-
 }
 
 
@@ -124,10 +119,6 @@ impl Program {
         let instructions: Vec<Instruction> = lexer.collect();
 
         Ok(Program {instructions: instructions, instruction_pointer: 0, memory: Memory::new()})
-    }
-
-    pub fn read_memory(&self, dp: usize) -> u8 {
-        self.memory.arbitrary_read(dp)
     }
 
     pub fn input_byte(&self) -> u8 {
