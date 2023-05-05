@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 use std::str::Chars;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Instruction {
@@ -43,11 +43,12 @@ impl<'a> Iterator for Lexer<'a> {
             '[' => Some(Instruction::LeftJMP),
             ']' => Some(Instruction::RightJMP),
 
-            other => Some(Instruction::NOP)
+            _ => Some(Instruction::NOP)
 
         }
     }
 }
+
 
 pub struct Memory {
     cells: [u8; 30_000],
@@ -93,6 +94,7 @@ impl Memory {
         self.cells[self.data_pointer] = byte;
     }
 
+    
     pub fn arbitrary_read(&self, dp: usize) -> u8 {
         self.cells[dp]
     }
@@ -142,7 +144,10 @@ impl Program {
                 Instruction::DecDP => self.memory.dp_move(-1),
                 Instruction::IncByte => self.memory.increment_byte(),
                 Instruction::DecByte => self.memory.decrement_byte(),
-                Instruction::OutByte => print!("{}", self.memory.get_byte()),
+                Instruction::OutByte => {
+                    print!("{}", self.memory.get_byte());
+                    io::stdout().flush().unwrap();
+                },
                 Instruction::InpByte => self.memory.set_byte(self.input_byte()),
                 Instruction::LeftJMP => {
                     if self.memory.get_byte() == 0u8 {
@@ -168,6 +173,7 @@ impl Program {
             }
 
             self.instruction_pointer += 1;
+            println!("Instruction {:?} ran. IP: {}. DP: {}. Data: {}", instruction, self.instruction_pointer, self.memory.data_pointer, self.memory.get_byte());
         }
     }
 
