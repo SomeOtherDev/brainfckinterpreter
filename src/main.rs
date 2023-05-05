@@ -29,9 +29,10 @@ fn main() {
         loop {
             print!("brainf*ck: ");
             io::stdout().flush().unwrap();
+
             stdin.lock().read_line(&mut line).unwrap();
             line = line.trim().to_string();
-            let mut program: Program = Program::from_string(line.clone());
+            let mut program: Program = Program::from_string(&line);
             program.run();
             println!();
         }

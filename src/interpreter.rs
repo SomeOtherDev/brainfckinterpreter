@@ -104,8 +104,8 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn from_string(source_code: String) -> Self {
-        let lexer = Lexer::new(source_code.as_str())
+    pub fn from_string(source_code: &str) -> Self {
+        let lexer = Lexer::new(source_code)
         .filter(|&t| t != Instruction::NOP);
         let instructions = lexer.collect();
 
