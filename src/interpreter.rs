@@ -94,11 +94,6 @@ impl Memory {
         self.cells[self.data_pointer] = byte;
     }
 
-    
-    pub fn arbitrary_read(&self, dp: usize) -> u8 {
-        self.cells[dp]
-    }
-
 }
 
 
@@ -126,10 +121,6 @@ impl Program {
         Ok(Program {instructions: instructions, instruction_pointer: 0, memory: Memory::new()})
     }
 
-    pub fn read_memory(&self, dp: usize) -> u8 {
-        self.memory.arbitrary_read(dp)
-    }
-
     pub fn input_byte(&self) -> u8 {
         let mut buffer = [0; 1];
         io::stdin().read_exact(&mut buffer).unwrap();
@@ -137,6 +128,8 @@ impl Program {
     }
 
     pub fn run(&mut self) {
+        let mut jumps:Vec<usize> = vec![];
+
         while self.instruction_pointer < self.instructions.len() {
             let instruction = self.instructions[self.instruction_pointer];
             match instruction {
@@ -145,35 +138,41 @@ impl Program {
                 Instruction::IncByte => self.memory.increment_byte(),
                 Instruction::DecByte => self.memory.decrement_byte(),
                 Instruction::OutByte => {
-                    print!("{}", self.memory.get_byte());
+                    print!("{}", char::from(self.memory.get_byte()));
                     io::stdout().flush().unwrap();
                 },
                 Instruction::InpByte => self.memory.set_byte(self.input_byte()),
                 Instruction::LeftJMP => {
                     if self.memory.get_byte() == 0u8 {
-                        for i in self.instruction_pointer..self.instructions.len()-1 {
-                            if self.instructions[i] == Instruction::RightJMP {
-                                self.instruction_pointer = i;
+                        let mut stack = 1;
+                        for i in self.instruction_pointer..self.instructions.len() - 1 {
+                            match self.instructions[i] {
+                                Instruction::LeftJMP => stack -= 1,
+                                Instruction::RightJMP => stack += 1,
+                                _ => ()
+                            }
+                            if stack == 0 {
                                 break;
                             }
                         }
                     }
+                    else {
+                        jumps.push(self.instruction_pointer);
+                    }
                 },
                 Instruction::RightJMP => {
                     if self.memory.get_byte() != 0u8 {
-                        for i in (0..self.instruction_pointer).rev() {
-                            if self.instructions[i] == Instruction::LeftJMP {
-                                self.instruction_pointer = i;
-                                break;
-                            }
-                        }
+                        self.instruction_pointer = jumps[jumps.len() - 1];
+                    }
+                    else {
+                        jumps.pop();
                     }
                 },
                 Instruction::NOP => (),
             }
 
             self.instruction_pointer += 1;
-            println!("Instruction {:?} ran. IP: {}. DP: {}. Data: {}", instruction, self.instruction_pointer, self.memory.data_pointer, self.memory.get_byte());
+            //println!("Instruction {:?} ran. IP: {}. DP: {}. Data: {}", instruction, self.instruction_pointer, self.memory.data_pointer, self.memory.get_byte());
         }
     }
 
